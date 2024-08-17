@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import Login from './components/Login';
-import Register from './components/Register';
-import Profile from './components/Profile';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Profile from './pages/Profile';
 import { useAuth } from './context/UserContext';
 
 const App: React.FC = () => {

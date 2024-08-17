@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import { useAuth } from '../context/UserContext';
 
 const Profile: React.FC = () => {
-  const { user, fetchUserProfile, logout } = useAuth();
+  const { user, getUser, logout } = useAuth();
 
   useEffect(() => {
-    fetchUserProfile();
-  }, [fetchUserProfile]);
+    getUser();
+  }, []);
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -20,25 +20,20 @@ const Profile: React.FC = () => {
   };
 
   if (!user) {
-    return <p className="text-center text-lg">Loading...</p>;
+    return <p>Loading...</p>;
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 bg-white rounded shadow-lg border border-gray-300">
-        <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">
-          Profile
-        </h2>
-        <p className="mb-4 text-center">
+    <div className="container">
+      <div className="form-container">
+        <h2 className="form-title">Profile</h2>
+        <p>
           <strong>Email:</strong> {user.email}
         </p>
-        <p className="mb-4 text-center">
+        <p>
           <strong>Registration Date:</strong> {formatDate(user.createdAt)}
         </p>
-        <button
-          onClick={logout}
-          className="w-full py-2 text-white bg-red-600 rounded hover:bg-red-700"
-        >
+        <button onClick={logout} className="button">
           Logout
         </button>
       </div>

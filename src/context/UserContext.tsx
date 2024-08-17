@@ -1,14 +1,6 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useEffect,
-  useCallback,
-} from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const apiUrl = process.env.REACT_APP_API_URL;
+import { fetchUserProfile, login, register } from '../services/auth';
 
 interface User {
   id: number;
@@ -20,14 +12,14 @@ interface User {
 interface AuthContextProps {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (
+  loginUser: (email: string, password: string) => Promise<void>;
+  registerUser: (
     email: string,
     password: string,
     confirmPassword: string,
   ) => Promise<void>;
   logout: () => void;
-  fetchUserProfile: () => void;
+  getUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -47,15 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     navigate('/login');
   };
 
-  const fetchUserProfile = useCallback(async () => {
+  const getUser = async () => {
     if (!token) return;
-
     try {
-      const response = await axios.get(`${apiUrl}/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetchUserProfile(token);
       setUser(response.data);
     } catch (error: any) {
       if (error.response?.status === 401) {
@@ -63,35 +50,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       }
       alert(error.response?.data?.message || error.message);
     }
-  }, [token]);
+  };
 
   useEffect(() => {
     if (token) {
-      fetchUserProfile();
+      getUser();
     }
-  }, [token, fetchUserProfile]);
+  }, [token]);
 
-  const login = async (email: string, password: string) => {
+  const loginUser = async (email: string, password: string) => {
     if (!email || !password) {
       alert('Please fill in all fields.');
       return;
     }
     try {
-      const response = await axios.post(`${apiUrl}/auth/login`, {
-        email,
-        password,
-      });
+      const response = await login(email, password);
       const { token } = response.data;
       setToken(token);
       localStorage.setItem('token', token);
-      fetchUserProfile();
+      getUser();
       navigate('/profile');
     } catch (error: any) {
       alert(error.response?.data?.message || error.message);
     }
   };
 
-  const register = async (
+  const registerUser = async (
     email: string,
     password: string,
     confirmPassword: string,
@@ -105,15 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       return;
     }
     try {
-      const response = await axios.post(`${apiUrl}/auth/register`, {
-        email,
-        password,
-        confirmPassword,
-      });
+      const response = await register(email, password);
       const { token } = response.data;
       setToken(token);
       localStorage.setItem('token', token);
-      fetchUserProfile();
+      getUser();
       navigate('/profile');
     } catch (error: any) {
       alert(error.response?.data?.message || error.message);
@@ -122,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      value={{ user, token, login, register, logout, fetchUserProfile }}
+      value={{ user, token, loginUser, registerUser, logout, getUser }}
     >
       {children}
     </AuthContext.Provider>
