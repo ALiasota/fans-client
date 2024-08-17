@@ -72,6 +72,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [token, fetchUserProfile]);
 
   const login = async (email: string, password: string) => {
+    if (!email || !password) {
+      alert('Please fill in all fields.');
+      return;
+    }
     try {
       const response = await axios.post(`${apiUrl}/auth/login`, {
         email,
@@ -92,11 +96,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     password: string,
     confirmPassword: string,
   ) => {
+    if (!email || !password || !confirmPassword) {
+      alert('Please fill in all fields.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      alert('Password Error');
+      return;
+    }
     try {
-      if (password !== confirmPassword) {
-        alert('Password Error');
-        return;
-      }
       const response = await axios.post(`${apiUrl}/auth/register`, {
         email,
         password,
